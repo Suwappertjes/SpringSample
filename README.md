@@ -2,7 +2,7 @@
 
 **Short discalaimer**: I am Dutch so I sometimes accidentally use dutch words for variable names, apologies in advance.
 
-1. I use Intellji Idea.
+1. I use Intellji Idea and build with java 1.8.0-212
 
 2. This program only builds if it detects a running mysql server on the system. The username and password it uses to login are found in the application.properties file under resources and a guide on how to set up MySQL on Linux is included (ignore of course if you have no problem setting this up).
 
