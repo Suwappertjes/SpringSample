@@ -1,7 +1,7 @@
 package nl.highway.iungomain.Controllers;
 
-import nl.highway.iungomain.Datamodel.Gebruiker.Gebruiker;
-import nl.highway.iungomain.Datamodel.Gebruiker.GebruikerRepository;
+import nl.highway.iungomain.Datamodel.User.UserEntity;
+import nl.highway.iungomain.Datamodel.User.UserRepository;
 import nl.highway.iungomain.Exceptions.BadRequestException;
 import nl.highway.iungomain.Exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,10 @@ import java.util.HashSet;
 
 @RestController
 @RequestMapping(path = "/iungo/gebruiker")
-
-//TODO: Define access level when Oauth2 is operational.
 public class GebruikerController {
 
     @Autowired
-    private GebruikerRepository gebruikerRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -28,89 +26,86 @@ public class GebruikerController {
 
     @GetMapping
     public @ResponseBody
-    Iterable<Gebruiker> getAll() {
-        // This returns a JSON or XML with the users
-        return gebruikerRepository.findAll();
+    Iterable<UserEntity> getAll() {
+        return userRepository.findAll();
     }
 
     @GetMapping(path = "/id/{id}")
-    public @ResponseBody Gebruiker findById(@PathVariable Integer id){
-        return gebruikerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Gebruikerid","id", id));
+    public @ResponseBody
+    UserEntity findById(@PathVariable Integer id){
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Userid","id", id));
     }
 
-    @GetMapping(path = "/gebruikersnaam/{gebruikersnaam}")
-    public @ResponseBody Gebruiker findByGebruikersnaam(@PathVariable String gebruikersnaam){
-        return gebruikerRepository.findByGebruikersnaam(gebruikersnaam).orElseThrow(() -> new ResourceNotFoundException("Gebruikersnaam","gebruikersnaam", gebruikersnaam));
+    @GetMapping(path = "/username/{username}")
+    public @ResponseBody
+    UserEntity findByGebruikersnaam(@PathVariable String username){
+        return userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Username","username", username));
     }
 
     @GetMapping(path = "/email/{email}")
-    public @ResponseBody Gebruiker findByEmail(@PathVariable String email){
-        return gebruikerRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email","email", email));
+    public @ResponseBody
+    UserEntity findByEmail(@PathVariable String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Email","email", email));
     }
 
     // POST methods -> Add new data.
 
     @PostMapping
-    public @ResponseBody ResponseEntity<?> add(@RequestBody Gebruiker gebruiker)
+    public @ResponseBody ResponseEntity<?> add(@RequestBody UserEntity userEntity)
     {
 
         // Validation.
-        if (gebruiker.getId() != null){
+        if (userEntity.getId() != null){
             throw new BadRequestException("Please do not supply ID, they are auto-incremented.");
         }
 
-        if (gebruikerRepository.findByGebruikersnaam(gebruiker.getGebruikersnaam()).isPresent()){
+        if (userRepository.findByUsername(userEntity.getUsername()).isPresent()){
             throw new BadRequestException("Gebruikersnaam already in use");
         }
 
-        if (gebruikerRepository.findByEmail(gebruiker.getEmail()).isPresent()){
+        if (userRepository.findByEmail(userEntity.getEmail()).isPresent()){
             throw new BadRequestException("Email already in use.");
         }
 
-        if (gebruiker.getRechten() == null){
-            gebruiker.withRechten(new HashSet<>());
+        if (userEntity.getRoles() == null){
+            userEntity.withRoles(new HashSet<>());
         }
 
-        String plainWachtwoord = gebruiker.getWachtwoord();
-        gebruiker.withWachtwoord(passwordEncoder.encode(plainWachtwoord));
+        String plainWachtwoord = userEntity.getPassword();
+        userEntity.withPassword(passwordEncoder.encode(plainWachtwoord));
 
-        gebruikerRepository.save(gebruiker);
-        return ResponseEntity.ok("Added new gebruiker to database.");
+        userRepository.save(userEntity);
+        return ResponseEntity.ok("Added new userEntity to database.");
     }
 
     // PUT methods -> Replace existing data.
 
     @PutMapping
-    public @ResponseBody ResponseEntity<?> update(@RequestBody Gebruiker gebruiker){
-        Integer id = gebruiker.getId();
-        Gebruiker storedGebruiker = gebruikerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Gebruikerid","id", id));
+    public @ResponseBody ResponseEntity<?> update(@RequestBody UserEntity userEntity){
+        Integer id = userEntity.getId();
+        UserEntity storedUserEntity = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Gebruikerid","id", id));
 
-        //TODO: Maybe require the old password to be able to change to new one?
-        // passwordEncoder.matches("rawPassword", user.getPassword());`
-
-        //TODO: Can the updating of variables be done in a prettier way?
-
-        if (gebruiker.getGebruikersnaam() != null){
-            storedGebruiker.withGebruikersnaam(gebruiker.getGebruikersnaam());
+        if (userEntity.getUsername() != null){
+            storedUserEntity.withUsername(userEntity.getUsername());
         }
-        if (gebruiker.getVoornaam() != null){
-            storedGebruiker.withVoornaam(gebruiker.getVoornaam());
+        if (userEntity.getFirstName() != null){
+            storedUserEntity.withFirstName(userEntity.getFirstName());
         }
-        if (gebruiker.getAchternaam() != null){
-            storedGebruiker.withAchternaam(gebruiker.getAchternaam());
+        if (userEntity.getLastName() != null){
+            storedUserEntity.withLastName(userEntity.getLastName());
         }
-        if (gebruiker.getEmail() != null){
-            storedGebruiker.withEmail(gebruiker.getEmail());
+        if (userEntity.getEmail() != null){
+            storedUserEntity.withEmail(userEntity.getEmail());
         }
-        if (gebruiker.getWachtwoord() != null){
-            storedGebruiker.withWachtwoord(passwordEncoder.encode(gebruiker.getWachtwoord()));
+        if (userEntity.getPassword() != null){
+            storedUserEntity.withPassword(passwordEncoder.encode(userEntity.getPassword()));
         }
-        if (gebruiker.getRechten() != null){
-            storedGebruiker.withRechten(gebruiker.getRechten());
+        if (userEntity.getRoles() != null){
+            storedUserEntity.withRoles(userEntity.getRoles());
         }
 
-        gebruikerRepository.save(storedGebruiker);
-        return ResponseEntity.ok(String.format("Successfully updated Gebruiker with ID: %s.", id));
+        userRepository.save(storedUserEntity);
+        return ResponseEntity.ok(String.format("Successfully updated UserEntity with ID: %s.", id));
     }
 
     //DELETE methods -> Remove data.
@@ -119,8 +114,8 @@ public class GebruikerController {
     public @ResponseBody ResponseEntity<?> delete(
             @PathVariable Integer id){
 
-        Gebruiker gebruiker = gebruikerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Gebruikerid","id", id));
-        gebruikerRepository.delete(gebruiker);
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Userid","id", id));
+        userRepository.delete(userEntity);
         return ResponseEntity.ok("Successfully deleted from database.");
 
     }

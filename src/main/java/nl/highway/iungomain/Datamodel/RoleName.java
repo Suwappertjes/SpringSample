@@ -1,6 +1,6 @@
 package nl.highway.iungomain.Datamodel;
 
-public enum RechtNaam {
+public enum RoleName {
     HIGHWAY,
     BOUWBEDRIJF,
     LEVERANCIER

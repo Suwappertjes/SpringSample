@@ -1,24 +1,24 @@
 package nl.highway.iungomain.Security;
 
-import nl.highway.iungomain.Datamodel.RechtNaam;
+import nl.highway.iungomain.Datamodel.RoleName;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserRoleAuthority implements GrantedAuthority {
-    private final RechtNaam recht;
+    private final RoleName role;
 
-    public UserRoleAuthority(RechtNaam recht) {
-        this.recht = recht;
+    public UserRoleAuthority(RoleName roles) {
+        this.role = roles;
     }
 
-    public static Set<UserRoleAuthority> getAuthorities(Set<RechtNaam> rechten) {
-        return rechten.stream().map(UserRoleAuthority::new).collect(Collectors.toSet());
+    public static Set<UserRoleAuthority> getAuthorities(Set<RoleName> role) {
+        return role.stream().map(UserRoleAuthority::new).collect(Collectors.toSet());
     }
 
     @Override
     public String getAuthority() {
-        return "ROLE_" + recht.name();
+        return "ROLE_" + role.name();
     }
 }

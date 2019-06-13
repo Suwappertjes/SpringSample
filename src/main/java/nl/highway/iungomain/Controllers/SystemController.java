@@ -9,14 +9,11 @@ import java.net.URL;
 
 @RestController
 @RequestMapping(path = "/iungo/system")
-//TODO: Define access level when Oauth2 is operational.
 public class SystemController {
 
 
     @Value("${spring.application.version}")
     private String version;
-
-    // TODO: Do these methods also need to return a response-entity instead of a string?
 
     @RequestMapping
     public String index() {

@@ -1,6 +1,6 @@
 package nl.highway.iungomain.Security;
 
-import nl.highway.iungomain.Datamodel.Gebruiker.GebruikerRepository;
+import nl.highway.iungomain.Datamodel.User.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.core.userdetails.User;
@@ -14,25 +14,22 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 
-    private final GebruikerRepository gebruikerRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserDetailsServiceImpl(GebruikerRepository gebruikerRepository) {
-        this.gebruikerRepository = gebruikerRepository;
+    public UserDetailsServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String gebruikersNaam) {
-        return gebruikerRepository.findByGebruikersnaam(gebruikersNaam)
-                .map(gebruiker -> {
-                    System.out.print(gebruiker.getWachtwoord());
-                    return new User(
-                            gebruiker.getGebruikersnaam(),
-                            gebruiker.getWachtwoord(),
-                            UserRoleAuthority.getAuthorities(gebruiker.getRechten())
-                    );
-                })
-                .orElseThrow(() -> new UsernameNotFoundException("Unknown user: " + gebruikersNaam));
+    public UserDetails loadUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new User(
+                            user.getUsername(),
+                            user.getPassword(),
+                            UserRoleAuthority.getAuthorities(user.getRoles())
+                    ))
+                .orElseThrow(() -> new UsernameNotFoundException("Unknown user: " + username));
 
 
     }
